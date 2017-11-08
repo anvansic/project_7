@@ -56,7 +56,6 @@ $(function() {
     describe('The menu', function() {
         var view = $('body');
         var menu = $('.menu-icon-link');
-        var clicked = false;
 
         /* (Completed) Write a test that ensures the menu element is
          * hidden by default. You'll have to analyze the HTML and
@@ -64,7 +63,7 @@ $(function() {
          * hiding/showing of the menu element.
          */
          it('should be hidden on initial page load', function() {
-           expect(view.attr('class')).toBe('menu-hidden');
+           expect(view.hasClass('menu-hidden')).toBe(true);
          });
 
          /* (Completed): Write a test that ensures the menu changes
@@ -74,9 +73,9 @@ $(function() {
           */
          it('should change visibility when the menu button is clicked', function() {
            menu.click();
-           expect(view.attr('class')).not.toBe('menu-hidden');
+           expect(view.hasClass('menu-hidden')).toBe(false);
            menu.click();
-           expect(view.attr('class')).toBe('menu-hidden');
+           expect(view.hasClass('menu-hidden')).toBe(true);
          });
     });
 
@@ -96,7 +95,7 @@ $(function() {
          });
 
          it('should have at least one entry in the feed', function(done) {
-           expect($('.feed').children().length).toBeGreaterThan(0);
+           expect($('.feed .entry-link').children().hasClass('entry')).toBe(true);
            done();
          });
     });
@@ -107,36 +106,25 @@ $(function() {
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
-
-         /*To simulate new feed selection, a random feed ID different from the
-           first is selected (i.e. 1, 2 or 3).
-           To test for a change in content, two arrays of link titles are compared:
-           one generated before loadFeed, and the other after.
-           The test passes because the arrays are not identical; if the feed ID for
-           the same feed were passed into loadFeed (i.e. 0), the test would fail.
-         */
-         var firstFeedLinks = [];
-         var nextFeedLinks = [];
+         var firstFeed, nextFeed;
 
          beforeEach(function(done) {
-           var firstFeed = $('.feed').find('h2');
-           firstFeed.each(function() {
-             firstFeedLinks.push($(this).text());
-           });
-
-           var nextFeedId = Math.floor(Math.random() * 3) + 1;
-           loadFeed(nextFeedId, function() {
+           loadFeed(0, function() {
+             firstFeed = $('.feed').html();
              done();
            });
          });
 
+         /*To simulate new feed selection, a random feed ID different from the
+           first is selected (i.e. 1, 2 or 3).
+         */
          it('should change when a new feed is loaded', function(done) {
-           var nextFeed = $('.feed').find('h2');
-           nextFeed.each(function() {
-             nextFeedLinks.push($(this).text());
+           var nextFeedId = Math.floor(Math.random() * 3) + 1;
+           loadFeed(nextFeedId, function() {
+             nextFeed = $('.feed').html();
+             expect(firstFeed).not.toEqual(nextFeed);
+             done();
            });
-           expect(firstFeedLinks).not.toEqual(nextFeedLinks);
-           done();
          });
     });
 }());
